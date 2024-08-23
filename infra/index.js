@@ -13,17 +13,13 @@ const password = config.require("dockerPassword");
 const dockerImageName = config.require("dockerImageName");
 const githubSecret = config.require("githubSecret");
 const githubClient = config.require("githubClient");
-
-// Kubernetes provider setup
-let k8sProvider;
 let serviceAccountName = "backstage-sa";
+let k8sProvider;
 
-// Create the Kubernetes Namespace
 const namespace = new k8s.core.v1.Namespace("backstage-namespace", {
     metadata: { name: k8sNamespace },
 });
 
-// Build and push the Docker image
 const dockerImage = new docker.Image("backstage-image", {
     build: {
         context: "../app/backstage/",
@@ -31,7 +27,7 @@ const dockerImage = new docker.Image("backstage-image", {
         // platform: "linux/amd64",
     },
     imageName: pulumi.interpolate`${dockerImageName}:latest`,
-    skipPush: false, // Push to the Docker registry
+    skipPush: false, 
     registry: {
         server: "docker.io",
         username,
@@ -40,12 +36,10 @@ const dockerImage = new docker.Image("backstage-image", {
 });
 
 if (useMinikube) {
-    // Minikube development setup
     k8sProvider = new k8s.Provider("minikube", {
         kubeconfig,
     });
 
-    // Create the ServiceAccount for Minikube
     serviceAccountName = "backstage-sa-minikube";
     new k8s.core.v1.ServiceAccount(serviceAccountName, {
         metadata: {
@@ -55,7 +49,6 @@ if (useMinikube) {
     }, { provider: k8sProvider, dependsOn: namespace });
 
 } else {
-    // Production setup on AWS EKS
     const vpc = new awsx.ec2.Vpc("vpc", { numberOfAvailabilityZones: 2 });
     const cluster = new aws.eks.Cluster("backstage-cluster", {
         vpcId: vpc.id,
@@ -146,7 +139,7 @@ const deployment = new k8s.apps.v1.Deployment("backstage-deployment", {
                 serviceAccountName,
                 containers: [{
                     name: "backstage",
-                    image: dockerImage.imageName, // Use the same image for both environments
+                    image: dockerImage.imageName, 
                     ports: [{ containerPort: 7007 }],
                     volumeMounts: [{ mountPath: "/data", name: "backstage-data" }],
                     env: [
