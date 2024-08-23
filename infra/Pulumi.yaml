@@ -1,0 +1,11 @@
+name: aws-backstage-eks
+runtime:
+  name: nodejs
+  options:
+    packagemanager: npm
+    typescript: false
+description: Backstage with Pulumi Plugin on AWS EKS
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-javascript

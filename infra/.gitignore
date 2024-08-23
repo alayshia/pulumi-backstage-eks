@@ -1,0 +1,4 @@
+/node_modules/
+Pulumi.dev.yaml
+Pulumi.prod.yaml
+Pulumi.STACK.yaml
